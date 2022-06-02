@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="Windows-1250"?>
+<data>
+  <template>oswiadczenia.report.xlsx</template>
+  <options>
+    <!-- reportmode: SingleSheet/MultipleSheets/MultipleDocuments -->
+    <reportmode>SingleSheet</reportmode>
+    <!-- orientation: Vertial/Horizontal -->
+    <orientation>vertical</orientation>
+  </options>
+  <optionsview>
+    <gridlines>false</gridlines>
+    <headers>false</headers>
+    <pagecontrol>false</pagecontrol>
+  </optionsview>
+  <sql><![CDATA[
+       SELECT 
+            R.rok as Sezon_audyt,
+            Imie,
+            Nazwisko,
+            NumerBR,
+            Typ,
+            OSW.Data,
+            OSW.Opis,
+            (OSW.ID IS NOT NULL) as Zlozono,
+            CONCAT(R.rok,'-',BR.OsobaID) as Grupa
+         FROM rok R
+         JOIN bieglyrewident BR 
+         JOIN typoswiadczenia TOSW 
+         LEFT JOIN oswiadczenie OSW ON (R.rok = OSW.Sezon_audyt) AND (BR.OsobaID = OSW.OsobaID) AND (TOSW.ID = OSW.TypOswiadczeniaID)
+         LEFT JOIN osoba O ON O.ID = BR.OsobaID
+         WHERE R.rok <= Year(Now())
+         ORDER BY R.rok, O.Nazwisko, Typ;       
+   ]]></sql>
+  <datagroups>
+    <datagroup>
+      <fieldname>Grupa</fieldname>
+      <sectionid>0</sectionid>
+      <sortorder>ascending</sortorder>
+    </datagroup>
+  </datagroups>
+</data>
